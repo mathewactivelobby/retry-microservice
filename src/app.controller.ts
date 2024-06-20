@@ -9,6 +9,7 @@ export interface EventQueueData {
   port: number;
   event: string;
   payload: any;
+  delay?: number
 }
 
 @Controller('api')
@@ -17,7 +18,7 @@ export class AppController {
 
   @Post('retry')
   async retry(@Body() data: any) {
-    console.log('entered',data);
+    console.log('entered', data);
     const response = await this.appservice.callRetryMicroservice(data);
     return response;
   }
@@ -26,16 +27,16 @@ export class AppController {
   async dynamicCall(data: EventQueueData) {
     try {
       console.log('entered 3')
-      const { host, port, event, payload } = data;
-      //console.log(this.eventQueue);
+      const { host, port, event, payload, delay } = data;
 
       // Add a job to the queue
-     const job =  await this.eventQueue.add({
+      const job = await this.eventQueue.add({
         host,
         port,
         event,
         payload,
-      });
+      },
+        delay ? { delay } : undefined);
     } catch (err) {
       console.log('error', err);
     }
